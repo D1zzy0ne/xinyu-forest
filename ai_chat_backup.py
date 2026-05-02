@@ -2,7 +2,7 @@ from openai import OpenAI
 
 # ==================== 配置区 ====================
 # 请将下面引号内的内容替换成你的新版 API Key (bce-v3/ALTAK-...)
-API_KEY = "bce-v3/ALTAK-oJp8a8jKurluJ3mlNDIen/9537ae4bf219b387196d1a9bf0200f2cab6df656"
+API_KEY = "please sign in"
 
 # 官方推荐的兼容接口地址
 BASE_URL = "https://qianfan.baidubce.com/v2"
