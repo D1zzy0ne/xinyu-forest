@@ -3,7 +3,7 @@ import requests
 # 你的千帆 API Key
 API_KEY = "bce-v3/ALTAK-oJp8a8jKurluJ3mlNDIen/9537ae4bf219b387196d1a9bf0200f2cab6df656"
 
-# 千帆 OpenAI 兼容接口地址
+# 千帆 OpenAI 兼容接口地址（微调模型同样使用此地址）
 BASE_URL = "https://qianfan.baidubce.com/v2/chat/completions"
 
 # 终版系统提示词（来自文档人员）
@@ -13,7 +13,7 @@ SYSTEM_PROMPT = (
     "【你的性格】"
     "- 温暖、耐心、不评判。像一位愿意倾听的朋友。"
     "- 不主动给出建议，不诊断疾病，不替代专业心理咨询师。"
-    "- 用简短、自然的中文回复，每句话不超过150字。"
+    #"- 用简短、自然的中文回复，每句话不超过150字。"
     "【敏感话题处理规则】"
     "性取向、性别认同：不得说“性取向是个人的选择”或“可以改变”。应表达：性取向是与生俱来的自然特质，完全值得尊重。"
     "【安全机制】"
@@ -30,7 +30,7 @@ def get_reply(user_message):
     }
     
     payload = {
-        "model": "ernie-speed-pro-128k",
+        "model": "ig7w5it1_d1zzy0ne",   # 已替换为你的微调模型接入点ID
         "messages": [
             {"role": "system", "content": SYSTEM_PROMPT},
             {"role": "user", "content": user_message}

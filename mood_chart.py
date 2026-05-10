@@ -1,11 +1,27 @@
 import pandas as pd
 import plotly.express as px
+import os
 
-CSV_FILE = "mood_log.csv"
 
-def plot_mood_last_7_days(csv_path=CSV_FILE):
+def plot_mood_last_7_days(user_id="default"):
+    """
+    读取指定用户的情绪日志，生成最近7天的情绪趋势折线图。
+    
+    参数:
+        user_id: 用户唯一标识（可选，默认 "default"）
+    
+    返回:
+        plotly.graph_objects.Figure 对象
+    """
+    csv_file = f"mood_log_{user_id}.csv"
+    
     try:
-        df = pd.read_csv(csv_path)
+        if not os.path.exists(csv_file):
+            fig = px.line(title="📊 最近7天情绪趋势｜还没有记录哦，先去记录吧~ 🌿")
+            fig.update_layout(yaxis_range=[0.5, 5.5])
+            return fig
+
+        df = pd.read_csv(csv_file)
         if df.empty:
             fig = px.line(title="📊 最近7天情绪趋势｜还没有记录哦")
             fig.update_layout(yaxis_range=[0.5, 5.5])
@@ -40,14 +56,11 @@ def plot_mood_last_7_days(csv_path=CSV_FILE):
                           annotation_text=f"最高 {max_score} 分")
         return fig
 
-    except FileNotFoundError:
-        fig = px.line(title="📊 最近7天情绪趋势｜还没有记录哦，先去记录吧~ 🌿")
-        fig.update_layout(yaxis_range=[0.5, 5.5])
-        return fig
     except Exception as e:
         fig = px.line(title=f"图表生成失败：{e}")
         return fig
 
+
 if __name__ == "__main__":
-    fig = plot_mood_last_7_days()
+    fig = plot_mood_last_7_days(user_id="test_user")
     fig.show()

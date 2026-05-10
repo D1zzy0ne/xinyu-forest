@@ -17,8 +17,19 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
+# ---------- 用户登录 ----------
+st.login("oidc/brgxbqrxoz7r")  # 你的 Authing 应用标识
+
+if not st.experimental_user.is_logged_in:
+    st.warning("请先登录才能使用心语森林哦～")
+    st.stop()
+
+user = st.experimental_user
+user_id = user.get("sub", "default_user")  # 唯一用户ID
+user_name = user.get("name") or user.get("phone_number") or "小伙伴"
+
 st.title("🌿 心语森林 — AI心理陪伴与情绪支持助手")
-st.caption("我在这里，陪你一起面对所有情绪。无论你是焦虑、难过还是迷茫，都可以在这里倾诉。")
+st.caption(f"你好，{user_name}！我在这里，陪你一起面对所有情绪。")
 
 # ---------- 侧边栏：情绪记录 + 小贴士 + 趋势图 ----------
 with st.sidebar:
@@ -36,7 +47,7 @@ with st.sidebar:
 
     note = st.text_input("简单记录一句话（可选）", placeholder="今天发生了什么？")
     if st.button("💾 保存今日情绪"):
-        ok = save_mood(score, note)
+        ok = save_mood(score, note, user_id=user_id)  # 传入用户ID
         if ok:
             st.success("✅ 心情已记录，感谢你愿意和我分享～")
         else:
@@ -50,7 +61,7 @@ with st.sidebar:
     st.markdown("---")
     st.subheader("📈 近7天情绪变化")
     try:
-        fig = plot_mood_last_7_days()
+        fig = plot_mood_last_7_days(user_id=user_id)  # 传入用户ID
         st.plotly_chart(fig, use_container_width=True)
     except Exception as e:
         st.info("先记录几次情绪，图表就会出现啦～")
@@ -59,14 +70,11 @@ with st.sidebar:
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
-# 渲染历史消息
 for idx, msg in enumerate(st.session_state.messages):
     avatar = "👤" if msg["role"] == "user" else "🌳"
     with st.chat_message(msg["role"], avatar=avatar):
         st.markdown(msg["content"])
-        # 为 AI 回复添加语音播放按钮
         if msg["role"] == "assistant":
-            # 使用消息索引作为唯一键，保证按钮互不干扰
             if st.button("🔊 收听回复", key=f"voice_btn_{idx}"):
                 with st.spinner("正在合成语音..."):
                     try:
@@ -81,12 +89,10 @@ for idx, msg in enumerate(st.session_state.messages):
 user_input = st.chat_input("把你的心情告诉我吧...")
 
 if user_input:
-    # 保存并显示用户消息
     with st.chat_message("user", avatar="👤"):
         st.markdown(user_input)
     st.session_state.messages.append({"role": "user", "content": user_input})
 
-    # 安全检测
     triggered, help_msg = check_safety(user_input)
 
     if triggered:
@@ -109,7 +115,6 @@ if user_input:
                 reply = get_reply(user_input)
             st.markdown(reply)
 
-            # 刚生成的回复也可以立即听到语音
             if st.button("🔊 收听这条回复", key=f"voice_new_{len(st.session_state.messages)}"):
                 with st.spinner("正在合成语音..."):
                     try:
