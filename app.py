@@ -17,19 +17,30 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# ---------- 用户登录 ----------
-st.login("oidc/brgxbqrxoz7r")  # 你的 Authing 应用标识
+# ---------- 极简用户系统 ----------
+if "user_id" not in st.session_state:
+    with st.container():
+        st.title("🌿 欢迎来到心语森林")
+        nickname = st.text_input("请输入你的昵称", placeholder="给自己取一个名字吧～")
+        if st.button("进入心语森林", use_container_width=True):
+            if nickname.strip():
+                st.session_state.user_id = nickname.strip()
+                st.rerun()
+            else:
+                st.error("请输入一个昵称哦～")
+        st.stop()
 
-if not st.experimental_user.is_logged_in:
-    st.warning("请先登录才能使用心语森林哦～")
-    st.stop()
+user_id = st.session_state.user_id
+user_name = user_id
 
-user = st.experimental_user
-user_id = user.get("sub", "default_user")  # 唯一用户ID
-user_name = user.get("name") or user.get("phone_number") or "小伙伴"
-
+# ---------- 标题 ----------
 st.title("🌿 心语森林 — AI心理陪伴与情绪支持助手")
 st.caption(f"你好，{user_name}！我在这里，陪你一起面对所有情绪。")
+
+# 退出按钮
+if st.sidebar.button("🚪 换个昵称"):
+    del st.session_state.user_id
+    st.rerun()
 
 # ---------- 侧边栏：情绪记录 + 小贴士 + 趋势图 ----------
 with st.sidebar:
@@ -47,7 +58,7 @@ with st.sidebar:
 
     note = st.text_input("简单记录一句话（可选）", placeholder="今天发生了什么？")
     if st.button("💾 保存今日情绪"):
-        ok = save_mood(score, note, user_id=user_id)  # 传入用户ID
+        ok = save_mood(score, note, user_id=user_id)
         if ok:
             st.success("✅ 心情已记录，感谢你愿意和我分享～")
         else:
@@ -61,7 +72,7 @@ with st.sidebar:
     st.markdown("---")
     st.subheader("📈 近7天情绪变化")
     try:
-        fig = plot_mood_last_7_days(user_id=user_id)  # 传入用户ID
+        fig = plot_mood_last_7_days(user_id=user_id)
         st.plotly_chart(fig, use_container_width=True)
     except Exception as e:
         st.info("先记录几次情绪，图表就会出现啦～")
