@@ -1,7 +1,10 @@
+import os
 import requests
 
-# 你的千帆 API Key
-API_KEY = "bce-v3/ALTAK-oJp8a8jKurluJ3mlNDIen/9537ae4bf219b387196d1a9bf0200f2cab6df656"
+# 从环境变量读取 API Key（更安全）
+API_KEY = os.environ.get("BAIDU_API_KEY")
+if not API_KEY:
+    raise ValueError("❌ 未找到 BAIDU_API_KEY 环境变量，请在运行前设置。")
 
 # 千帆 OpenAI 兼容接口地址（微调模型同样使用此地址）
 BASE_URL = "https://qianfan.baidubce.com/v2/chat/completions"
